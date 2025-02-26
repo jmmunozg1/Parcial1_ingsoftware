@@ -6,6 +6,7 @@ from django.urls import reverse
 from django import forms
 from django.core.exceptions import ValidationError
 from .models import Flight
+from django.db.models import Avg
 
 # Create your views here.
 class HomePageView(TemplateView):
@@ -69,4 +70,15 @@ class FlightListView(ListView):
         context['title']  = 'Products - Online Store'
         context['subtitle'] = 'List of flights'
 
+        return context
+    
+class FlightStatisticsView(TemplateView):
+    template_name = 'vuelos/stats.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = "Estadisticas de vuelos"
+        context["total_national"] = Flight.objects.filter(type="NAC").count()
+        context["total_international"] = Flight.objects.filter(type="INT").count()
+        context["avg_price_national"] = Flight.objects.filter(type="NAC").aggregate(Avg('price'))['price__avg'] or 0
         return context
